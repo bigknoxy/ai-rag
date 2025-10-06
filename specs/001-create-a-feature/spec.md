@@ -69,6 +69,7 @@ As a developer, I want a minimal, zero-cost scaffolding for AI-RAG so I can run 
   - **TST-001**: Contract/integration test asserting `POST /api/ingest` endpoint exists and accepts batch JSON `{ "documents": [ { "id": "optional", "text": "required", "metadata": {} }, ... ] }` (path: `tests/contract/TestIngest.cs` — C# xUnit).
   - **TST-002**: Test asserting `POST /embeddings` on the embeddings service returns an embeddings array shape (path: `embeddings/tests/test_embeddings_service.py`).
 - **FR-006**: All tests must run in CI without network calls (use mocks or precomputed embeddings available in `samples/`).
+- **FR-007**: Vector persistence for Phase 0 MUST be file-backed JSON stored at `samples/vectors.json` and used by CI to load precomputed embeddings for retrieval tests.
 
 ### Key Entities
 - **Document**: uploaded doc for ingestion (metadata: id, source, text)
@@ -97,6 +98,7 @@ If any gate cannot be satisfied (e.g., environment lacks Python/.NET), the mitig
   - `embeddings/tests/test_embeddings_service.py` (failing test)
 - `samples/sample1.md`
 - `samples/sample1.embeddings.json` (precomputed embeddings for CI)
+- `samples/vectors.json` (file-backed vector persistence used by CI and local runs)
 - `README.phase-0.md` (notes for running local demo and CI requirements)
 
 ---
@@ -132,6 +134,7 @@ Scenario: Ingest endpoint exists (contract)
 ## Non-functional Notes
 - Resource guidance: default components assume CPU-only execution on a modest machine (~8GB RAM). The `sentence-transformers` model recommended (`all-MiniLM-L6-v2`) is ~80–100MB and CPU friendly.
 - Embedding dimensionality: Precomputed sample embeddings will use 384-d vectors (matches `all-MiniLM-L6-v2`).
+- Vector persistence: Phase 0 uses file-backed JSON at `samples/vectors.json` for reproducible CI and local retrieval tests.
 - Authentication: Phase 0 endpoints are unauthenticated for local developer workflows. Note: future stages may add simple API-key header `X-API-Key` for CI or staging.
 - CI: Tests must run with precomputed embeddings (in `samples/`) and mocks. CI workflows must avoid network calls and paid services.
 
@@ -142,6 +145,7 @@ Scenario: Ingest endpoint exists (contract)
 - Q: Desired embedding vector dimensionality for precomputed sample? → A: 384
 - Q: Authentication for Phase 0 API endpoints? → A: No authentication (local dev); note: future stage may use API key `X-API-Key`
 - Q: Ingest API payload format for `POST /api/ingest`? → A: Batch JSON `{ "documents": [ ... ] }`
+- Q: Vector storage persistence strategy for Phase 0? → A: File-backed JSON (`samples/vectors.json`)
 
 ## Open Questions / [NEEDS CLARIFICATION]
 
