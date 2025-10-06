@@ -117,7 +117,7 @@ If any gate cannot be satisfied (e.g., environment lacks Python/.NET), the mitig
 Scenario: Embeddings service endpoint returns embeddings shape
   Given the embeddings FastAPI service is started with `python -m embeddings.service --host 127.0.0.1 --port 8001`
   When a client POSTs text to `/embeddings` with payload `{ "texts": ["hello"] }`
-  Then the service responds with a JSON array `[[float, ...]]` where the inner array length equals the embedding dimension (or >0)
+  Then the service responds with a JSON array `[[float, ...]]` where the inner array length equals the embedding dimension (384)
 
 Scenario: Ingest endpoint exists (contract)
   Given the API server is not yet implemented
@@ -131,15 +131,16 @@ Scenario: Ingest endpoint exists (contract)
 
 ## Non-functional Notes
 - Resource guidance: default components assume CPU-only execution on a modest machine (~8GB RAM). The `sentence-transformers` model recommended (`all-MiniLM-L6-v2`) is ~80–100MB and CPU friendly.
+- Embedding dimensionality: Precomputed sample embeddings will use 384-d vectors (matches `all-MiniLM-L6-v2`).
 - CI: Tests must run with precomputed embeddings (in `samples/`) and mocks. CI workflows must avoid network calls and paid services.
 
 ## Clarifications
 
 ### Session 2025-10-06
 - Q: Preferred language for placeholder contract tests? → A: C# (xUnit)
+- Q: Desired embedding vector dimensionality for precomputed sample? → A: 384
 
 ## Open Questions / [NEEDS CLARIFICATION]
-- [NEEDS CLARIFICATION: Desired embedding vector dimensionality for precomputed sample? Recommend 384 (typical for all-MiniLM-L6-v2).]
 
 ---
 
