@@ -132,6 +132,7 @@ Scenario: Ingest endpoint exists (contract)
 ## Non-functional Notes
 - Resource guidance: default components assume CPU-only execution on a modest machine (~8GB RAM). The `sentence-transformers` model recommended (`all-MiniLM-L6-v2`) is ~80–100MB and CPU friendly.
 - Embedding dimensionality: Precomputed sample embeddings will use 384-d vectors (matches `all-MiniLM-L6-v2`).
+- Authentication: Phase 0 endpoints are unauthenticated for local developer workflows. Note: future stages may add simple API-key header `X-API-Key` for CI or staging.
 - CI: Tests must run with precomputed embeddings (in `samples/`) and mocks. CI workflows must avoid network calls and paid services.
 
 ## Clarifications
@@ -139,6 +140,7 @@ Scenario: Ingest endpoint exists (contract)
 ### Session 2025-10-06
 - Q: Preferred language for placeholder contract tests? → A: C# (xUnit)
 - Q: Desired embedding vector dimensionality for precomputed sample? → A: 384
+- Q: Authentication for Phase 0 API endpoints? → A: No authentication (local dev); note: future stage may use API key `X-API-Key`
 
 ## Open Questions / [NEEDS CLARIFICATION]
 
