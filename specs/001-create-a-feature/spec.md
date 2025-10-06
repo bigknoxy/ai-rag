@@ -66,7 +66,7 @@ As a developer, I want a minimal, zero-cost scaffolding for AI-RAG so I can run 
 - **FR-003**: `embeddings` service MUST be runnable via `python -m embeddings.service --host 127.0.0.1 --port 8001` (document this in README).
 - **FR-004**: Repository MUST include `samples/sample1.md` and `samples/sample1.embeddings.json` (precomputed embeddings) used by CI.
 - **FR-005**: Provide at least two failing automated tests committed before implementation:
-  - **TST-001**: Contract/integration test asserting `POST /api/ingest` endpoint exists (path: `tests/contract/TestIngest.cs` — C# xUnit).
+  - **TST-001**: Contract/integration test asserting `POST /api/ingest` endpoint exists and accepts batch JSON `{ "documents": [ { "id": "optional", "text": "required", "metadata": {} }, ... ] }` (path: `tests/contract/TestIngest.cs` — C# xUnit).
   - **TST-002**: Test asserting `POST /embeddings` on the embeddings service returns an embeddings array shape (path: `embeddings/tests/test_embeddings_service.py`).
 - **FR-006**: All tests must run in CI without network calls (use mocks or precomputed embeddings available in `samples/`).
 
@@ -89,7 +89,7 @@ If any gate cannot be satisfied (e.g., environment lacks Python/.NET), the mitig
 - `specs/phase-0/spec.md` (this file)
 - `src/` (solution skeleton placeholder)
 - `tests/unit/` (placeholder failing tests)
-- `tests/contract/` (placeholder failing tests e.g., `tests/contract/test_ingest.py`)
+- `tests/contract/` (placeholder failing tests e.g., `tests/contract/TestIngest.cs` — C# xUnit)
 - `tests/integration/` (placeholder failing tests)
 - `embeddings/`
   - `embeddings/service.py` (FastAPI skeleton)
@@ -141,6 +141,7 @@ Scenario: Ingest endpoint exists (contract)
 - Q: Preferred language for placeholder contract tests? → A: C# (xUnit)
 - Q: Desired embedding vector dimensionality for precomputed sample? → A: 384
 - Q: Authentication for Phase 0 API endpoints? → A: No authentication (local dev); note: future stage may use API key `X-API-Key`
+- Q: Ingest API payload format for `POST /api/ingest`? → A: Batch JSON `{ "documents": [ ... ] }`
 
 ## Open Questions / [NEEDS CLARIFICATION]
 
