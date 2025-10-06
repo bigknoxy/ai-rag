@@ -66,7 +66,7 @@ As a developer, I want a minimal, zero-cost scaffolding for AI-RAG so I can run 
 - **FR-003**: `embeddings` service MUST be runnable via `python -m embeddings.service --host 127.0.0.1 --port 8001` (document this in README).
 - **FR-004**: Repository MUST include `samples/sample1.md` and `samples/sample1.embeddings.json` (precomputed embeddings) used by CI.
 - **FR-005**: Provide at least two failing automated tests committed before implementation:
-  - **TST-001**: Contract/integration test asserting `POST /api/ingest` endpoint exists (path: `tests/contract/test_ingest.py` or `tests/contract/TestIngest.cs`).
+  - **TST-001**: Contract/integration test asserting `POST /api/ingest` endpoint exists (path: `tests/contract/TestIngest.cs` — C# xUnit).
   - **TST-002**: Test asserting `POST /embeddings` on the embeddings service returns an embeddings array shape (path: `embeddings/tests/test_embeddings_service.py`).
 - **FR-006**: All tests must run in CI without network calls (use mocks or precomputed embeddings available in `samples/`).
 
@@ -133,8 +133,12 @@ Scenario: Ingest endpoint exists (contract)
 - Resource guidance: default components assume CPU-only execution on a modest machine (~8GB RAM). The `sentence-transformers` model recommended (`all-MiniLM-L6-v2`) is ~80–100MB and CPU friendly.
 - CI: Tests must run with precomputed embeddings (in `samples/`) and mocks. CI workflows must avoid network calls and paid services.
 
+## Clarifications
+
+### Session 2025-10-06
+- Q: Preferred language for placeholder contract tests? → A: C# (xUnit)
+
 ## Open Questions / [NEEDS CLARIFICATION]
-- [NEEDS CLARIFICATION: Preferred language for placeholder contract tests — Python (pytest) or C# (xUnit)? The repo uses .NET for API and Python for embeddings; recommend: contract tests in the primary API language (C# xUnit) and embeddings tests in Python pytest.]
 - [NEEDS CLARIFICATION: Desired embedding vector dimensionality for precomputed sample? Recommend 384 (typical for all-MiniLM-L6-v2).]
 
 ---
