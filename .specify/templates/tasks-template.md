@@ -48,7 +48,7 @@
 - [ ] T003 [P] Configure linting and formatting tools
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
-**CRITICAL: These tests MUST be written and MUST FAIL before ANY implementation**
+**MANDATORY:** Tests MUST be authored and committed before implementation. These tests MUST be written to fail initially (red) on CI using only mocks or precomputed artifacts; implementation may follow to make them pass. Pull requests that add implementation without accompanying failing tests WILL be rejected.
 - [ ] T004 [P] Contract test POST /api/users in tests/contract/test_users_post.py
 - [ ] T005 [P] Contract test GET /api/users/{id} in tests/contract/test_users_get.py
 - [ ] T006 [P] Integration test user registration in tests/integration/test_registration.py

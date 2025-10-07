@@ -33,9 +33,11 @@
 - 👥 Written for business stakeholders, not developers
 
 ### Section Requirements
-- **Mandatory sections**: Must be completed for every feature
-- **Optional sections**: Include only when relevant to the feature
-- When a section doesn't apply, remove it entirely (don't leave as "N/A")
+- **Mandatory sections**: Must be completed for every feature and must result in at least one failing, automated testable acceptance scenario.
+- **Optional sections**: Include only when relevant to the feature.
+- When a section doesn't apply, remove it entirely (don't leave as "N/A").
+
+Note: Requirements MUST be written to be testable and the plan MUST include the tests-first step; unresolved [NEEDS CLARIFICATION] items block implementation until resolved.
 
 ### For AI Generation
 When creating this spec from a user prompt:
