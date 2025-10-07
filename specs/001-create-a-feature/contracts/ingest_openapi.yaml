@@ -1,0 +1,40 @@
+openapi: 3.0.1
+info:
+  title: AI-RAG Ingest API (Phase 0 contract)
+  version: 0.1.0
+paths:
+  /api/ingest:
+    post:
+      summary: Ingest a batch of documents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                documents:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      text:
+                        type: string
+                      metadata:
+                        type: object
+                    required:
+                      - text
+              required:
+                - documents
+      responses:
+        '200':
+          description: Accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ingested:
+                    type: integer
