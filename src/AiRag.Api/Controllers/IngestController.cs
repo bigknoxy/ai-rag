@@ -34,7 +34,7 @@ public class IngestController : ControllerBase
             if (string.IsNullOrWhiteSpace(doc.Text)) continue;
             var chunk = new Chunk { DocumentId = doc.Id ?? System.Guid.NewGuid().ToString(), Text = doc.Text, StartOffset = 0, EndOffset = doc.Text.Length };
             var vec = await _embeddingProvider.GetEmbeddingAsync(chunk.Text);
-            var record = new EmbeddingRecord { ChunkId = chunk.Id, Vector = vec, Source = new { documentId = chunk.DocumentId, chunkId = chunk.Id } };
+            var record = new EmbeddingRecord { ChunkId = chunk.Id, Vector = vec, Chunk = chunk, Source = new { documentId = chunk.DocumentId, chunkId = chunk.Id } };
             await _vectorStore.SaveAsync(record);
             ingested++;
         }

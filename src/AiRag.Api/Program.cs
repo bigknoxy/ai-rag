@@ -33,6 +33,17 @@ if (string.Equals(embeddingOptions.Mode, "Precomputed", System.StringComparison.
     }
 }
 
+// Validate query pipeline components
+try
+{
+    var vectorStore = app.Services.GetRequiredService<AiRag.Api.Adapters.IVectorStore>();
+    var promptBuilder = app.Services.GetRequiredService<PromptBuilder>();
+}
+catch (System.Exception ex)
+{
+    throw new System.InvalidOperationException("Query pipeline validation failed at startup: " + ex.Message, ex);
+}
+
 // Add request logging middleware
 app.UseMiddleware<AiRag.Api.Services.RequestLoggingMiddleware>();
 

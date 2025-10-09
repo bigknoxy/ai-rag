@@ -45,6 +45,15 @@ public class InMemoryVectorStore : IVectorStore
         return Task.CompletedTask;
     }
 
+    public Task<System.Collections.Generic.List<Chunk>> GetChunksAsync(IEnumerable<string> chunkIds)
+    {
+        var chunks = chunkIds
+            .Where(id => _store.ContainsKey(id) && _store[id].Chunk != null)
+            .Select(id => _store[id].Chunk!)
+            .ToList();
+        return Task.FromResult(chunks);
+    }
+
     private static double CosineSimilarity(float[] a, float[] b)
     {
         if (a == null || b == null || a.Length == 0 || b.Length == 0) return 0.0;

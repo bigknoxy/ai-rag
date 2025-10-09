@@ -88,6 +88,12 @@ public class FileVectorStore : IVectorStore
         return Task.CompletedTask;
     }
 
+    public Task<System.Collections.Generic.List<Chunk>> GetChunksAsync(IEnumerable<string> chunkIds)
+    {
+        // For file store, return empty for now; in real implementation, load and filter
+        return Task.FromResult(new System.Collections.Generic.List<Chunk>());
+    }
+
     private static double CosineSimilarity(float[] a, float[] b)
     {
         if (a == null || b == null || a.Length == 0 || b.Length == 0) return 0.0;

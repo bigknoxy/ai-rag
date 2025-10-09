@@ -9,4 +9,5 @@ public interface IVectorStore
     Task<System.Collections.Generic.List<(string chunkId, double score)>> QueryAsync(float[] vector, int topK);
     Task RemoveAsync(string id);
     Task ClearAsync();
+    Task<System.Collections.Generic.List<Chunk>> GetChunksAsync(IEnumerable<string> chunkIds);
 }
