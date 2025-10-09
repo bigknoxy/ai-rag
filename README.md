@@ -1,6 +1,6 @@
 # AI-RAG: Open-Source Retrieval-Augmented Generation
 
-[![Build Status](https://github.com/bigknoxy/ai-rag/workflows/format-and-tests/badge.svg)](https://github.com/bigknoxy/ai-rag/actions)
+[![CI](https://github.com/bigknoxy/ai-rag/workflows/Format%20and%20Test/badge.svg)](https://github.com/bigknoxy/ai-rag/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 AI-RAG is a modular, open-source Retrieval-Augmented Generation (RAG) service built with ASP.NET Core and local tooling. Designed for zero-cost, CPU-friendly operation on modest hardware (~8GB RAM), it demonstrates production-ready backend engineering with a focus on testability, CI-safety, and extensibility.
@@ -75,7 +75,7 @@ curl -X POST "http://localhost:5000/api/query" \
   -d '{"text":"Explain RAG","useLlm":true}'
 ```
 
-For detailed setup including LLM integration, see [context/projects/ai-rag/quickstart.md](context/projects/ai-rag/quickstart.md).
+For detailed setup including LLM integration, see [specs/002-high-level-goal/quickstart.md](specs/002-high-level-goal/quickstart.md) or [specs/003-local-llm-integration/quickstart.md](specs/003-local-llm-integration/quickstart.md).
 
 ## 🏗️ Architecture
 
@@ -87,7 +87,7 @@ AI-RAG follows a modular adapter pattern for flexibility:
 - **Prompt Builder**: Assembles context for retrieval or LLM generation.
 - **Controllers**: REST endpoints for ingestion and querying.
 
-See [context/projects/ai-rag/architecture.md](context/projects/ai-rag/architecture.md) for detailed diagrams and flows.
+See [specs/002-high-level-goal/](specs/002-high-level-goal/) for architecture details and diagrams.
 
 ## 📖 API Reference
 
@@ -154,15 +154,14 @@ tests/                  # Test suites
   ├── unit/             # Unit tests
   ├── integration/      # Integration tests
   ├── contract/         # Contract tests
-specs/                  # Feature specifications and plans
-  ├── 001-create-a-feature/
-  ├── 002-high-level-goal/
-  ├── 003-local-llm-integration/
-context/projects/ai-rag/ # Project-specific docs and samples
+ specs/                  # Feature specifications and plans
+   ├── 001-create-a-feature/
+   ├── 002-high-level-goal/
+   ├── 003-local-llm-integration/
 ```
 
 ### Adding Features
-Follow the [developer flow](context/architexture/developer-flow.md):
+Follow the developer flow (see [specs/001-create-a-feature/](specs/001-create-a-feature/) for details):
 1. Create spec in `specs/###-feature-name/`
 2. Plan with `/plan` command
 3. Implement with TDD
@@ -192,4 +191,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Status**: Active development | **Version**: 1.0.0 | **Last Updated**: 2025-10-09
+**Status**: Active development | **Version**: 1.0.0 | **Last Updated**: 2025-10-10
