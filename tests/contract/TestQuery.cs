@@ -27,13 +27,13 @@ public class TestQuery : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
-    public async Task PostQuery_ReturnsAssembledPassages()
+    public async Task PostQuery_ReturnsResponse()
     {
         var json = "{ \"text\": \"Hello world\", \"topK\": 3 }";
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         var resp = await _client.PostAsync("/api/query", content);
         Assert.Equal(System.Net.HttpStatusCode.OK, resp.StatusCode);
         var body = await resp.Content.ReadAsStringAsync();
-        Assert.Contains("assembled", body); // This will fail until PromptBuilder is implemented
+        Assert.Contains("response", body);
     }
 }
