@@ -1,5 +1,6 @@
 # AI-RAG: Open-Source Retrieval-Augmented Generation
 
+[![CI](https://github.com/bigknoxy/ai-rag/workflows/Format%20and%20Test/badge.svg)](https://github.com/bigknoxy/ai-rag/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 AI-RAG is a modular, open-source Retrieval-Augmented Generation (RAG) service built with ASP.NET Core and local tooling. Designed for zero-cost, CPU-friendly operation on modest hardware (~8GB RAM), it demonstrates production-ready backend engineering with a focus on testability, CI-safety, and extensibility.
