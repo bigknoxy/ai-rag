@@ -22,6 +22,7 @@ public static class ServiceCollectionExtensions
 
         // For now register in-memory vector store; file store kept as fallback
         services.AddSingleton<AiRag.Api.Adapters.IVectorStore, AiRag.Api.Services.InMemoryVectorStore>();
+        services.AddSingleton<PromptBuilder>();
         return services;
     }
 }
