@@ -16,12 +16,12 @@ public class TestIngest : IClassFixture<WebApplicationFactory<Program>>
     }
 
     [Fact]
-    public async Task PostIngest_Returns200()
+    public async Task PostIngest_Returns202()
     {
         var json = "{ \"documents\": [ { \"id\": \"doc-1\", \"text\": \"Hello world\", \"metadata\": {} } ] }";
         var content = new StringContent(json, Encoding.UTF8, "application/json");
         var resp = await _client.PostAsync("/api/ingest", content);
-        Assert.True(resp.IsSuccessStatusCode, "Expected successful status code");
+        Assert.Equal(System.Net.HttpStatusCode.Accepted, resp.StatusCode);
         var body = await resp.Content.ReadAsStringAsync();
         Assert.Contains("ingested", body);
     }

@@ -39,6 +39,6 @@ public class IngestController : ControllerBase
             ingested++;
         }
 
-        return Ok(new { ingested });
+        return Accepted(new { ingested });
     }
 }

@@ -1,0 +1,30 @@
+name: Format and Test
+
+on:
+  push:
+    branches: [ "main", "specs/002-complete" ]
+  pull_request:
+    branches: [ "main", "specs/002-complete" ]
+
+jobs:
+  build-test-format:
+    runs-on: ubuntu-latest
+    env:
+      Embedding__Mode: Precomputed
+      ASPNETCORE_ENVIRONMENT: CI
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Restore dotnet tools
+        run: dotnet tool restore
+      - name: Verify code formatting
+        run: dotnet format src/AiRag.sln --verify-no-changes
+      - name: Restore dependencies
+        run: dotnet restore src/AiRag.sln
+      - name: Build
+        run: dotnet build src/AiRag.sln --no-restore --configuration Release
+      - name: Test
+        run: dotnet test src/AiRag.sln --no-build --configuration Release
