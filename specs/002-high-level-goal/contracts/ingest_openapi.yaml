@@ -1,0 +1,62 @@
+openapi: 3.0.1
+info:
+  title: AI-RAG Ingest API
+  version: 1.0.0
+paths:
+  /ingest:
+    post:
+      summary: Ingest a document and create chunks + embeddings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                text:
+                  type: string
+                metadata:
+                  type: object
+      responses:
+        '202':
+          description: Accepted for background processing
+        '400':
+          description: Validation error
+  /query:
+    post:
+      summary: Query the indexed documents and return top-K chunks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                topK:
+                  type: integer
+                  default: 5
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        chunkId:
+                          type: string
+                        score:
+                          type: number
+                        metadata:
+                          type: object
+        '400':
+          description: Validation error
