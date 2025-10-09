@@ -21,7 +21,7 @@ jobs:
       - name: Restore dotnet tools
         run: dotnet tool restore
       - name: Verify code formatting
-        run: dotnet format AiRag.sln --verify-no-changes
+        run: dotnet format src/AiRag.sln --verify-no-changes
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
