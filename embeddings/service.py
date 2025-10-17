@@ -7,6 +7,10 @@ app = FastAPI()
 class EmbedRequest(BaseModel):
     text: str
 
+@app.get("/health")
+async def health():
+    return {"status": "healthy"}
+
 @app.post("/embed")
 async def embed(req: EmbedRequest) -> List[float]:
     # Phase 0: return a deterministic dummy 384-d vector (zeros)

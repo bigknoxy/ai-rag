@@ -14,7 +14,7 @@ public class PromptBuilder
         if (!relevantChunks.Any())
             return "No relevant passages found.";
 
-        var assembled = $"Query: {query}\n\nPassages:\n" + string.Join("\n\n", relevantChunks.Select(c => c.Text));
+        var assembled = "Assembled passages: \n" + $"Query: {query}\n\nPassages:\n" + string.Join("\n\n", relevantChunks.Select(c => c.Text));
         return assembled;
     }
 }

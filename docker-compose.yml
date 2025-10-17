@@ -1,0 +1,65 @@
+services:
+  embeddings:
+    build:
+      context: .
+      dockerfile: embeddings/Dockerfile
+    container_name: ai-rag-embeddings
+    ports:
+      - "8001:8001"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import requests; requests.get('http://localhost:8001/health')\" || exit 1"]
+      interval: 30s
+      timeout: 10s
+      start_period: 5s
+      retries: 3
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai-rag-api
+    ports:
+      - "8000:8000"
+    environment:
+      - ASPNETCORE_URLS=http://+:8000
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Embedding__Mode=Live
+      - Embedding__LiveHost=http://embeddings:8001
+    depends_on:
+      embeddings:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://0.0.0.0:8000/health || exit 1"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    restart: unless-stopped
+
+  blazor:
+     build:
+       context: .
+       dockerfile: src/AiRag.Blazor/Dockerfile
+     container_name: ai-rag-blazor
+     ports:
+       - "5250:5250"
+     volumes:
+       - blazor_dataprotection_keys:/root/.aspnet/DataProtection-Keys
+     environment:
+       - ASPNETCORE_URLS=http://+:5250
+       - ASPNETCORE_ENVIRONMENT=Development
+       - Api__BaseUrl=http://api:8000
+     depends_on:
+       api:
+         condition: service_healthy
+     healthcheck:
+       test: ["CMD-SHELL", "curl -f http://0.0.0.0:5250/health || exit 1"]
+       interval: 30s
+       timeout: 3s
+       start_period: 5s
+       retries: 3
+     restart: unless-stopped
+
+volumes:
+  blazor_dataprotection_keys:

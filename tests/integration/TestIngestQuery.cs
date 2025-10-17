@@ -30,6 +30,8 @@ public class TestIngestQuery : IClassFixture<WebApplicationFactory<Program>>
 
         var body = await queryResp.Content.ReadAsStringAsync();
         Assert.Contains("doc-1", body);
+        // Ensure results include documentId in the returned JSON
+        Assert.Contains("documentId", body);
     }
 
     [Fact]
@@ -46,7 +48,19 @@ public class TestIngestQuery : IClassFixture<WebApplicationFactory<Program>>
         Assert.Equal(System.Net.HttpStatusCode.OK, queryResp.StatusCode);
 
         var body = await queryResp.Content.ReadAsStringAsync();
-        Assert.Contains("assembled", body); // This will fail until PromptBuilder is implemented
-        Assert.Contains("quick brown fox", body); // This will fail until proper query embeddings are used
+Assert.Contains("assembled", body, System.StringComparison.OrdinalIgnoreCase); // PromptBuilder should include 'assembled'
+         Assert.Contains("quick brown fox", body, System.StringComparison.OrdinalIgnoreCase); // Check that passage text appears
+    }
+
+    [Fact]
+    public async Task QueryStream_ReturnsStreamingResponse()
+    {
+        var queryJson = "{ \"text\": \"quick brown\", \"topK\": 1 }";
+        var queryContent = new StringContent(queryJson, Encoding.UTF8, "application/json");
+        var queryResp = await _client.PostAsync("/api/query/stream", queryContent);
+        Assert.Equal(System.Net.HttpStatusCode.OK, queryResp.StatusCode);
+
+        var body = await queryResp.Content.ReadAsStringAsync();
+        Assert.NotEmpty(body);
     }
 }

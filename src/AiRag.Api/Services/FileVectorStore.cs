@@ -90,8 +90,27 @@ public class FileVectorStore : IVectorStore
 
     public Task<System.Collections.Generic.List<Chunk>> GetChunksAsync(IEnumerable<string> chunkIds)
     {
-        // For file store, return empty for now; in real implementation, load and filter
-        return Task.FromResult(new System.Collections.Generic.List<Chunk>());
+        List<EmbeddingRecord> list;
+        lock (_lock)
+        {
+            if (!File.Exists(_path))
+            {
+                list = new List<EmbeddingRecord>();
+            }
+            else
+            {
+                var txt = File.ReadAllText(_path);
+                list = string.IsNullOrWhiteSpace(txt) ? new List<EmbeddingRecord>() : JsonSerializer.Deserialize<List<EmbeddingRecord>>(txt) ?? new List<EmbeddingRecord>();
+            }
+        }
+
+        var idSet = new HashSet<string>(chunkIds ?? Enumerable.Empty<string>());
+        var chunks = list
+            .Where(r => idSet.Contains(r.ChunkId) && r.Chunk != null)
+            .Select(r => r.Chunk!)
+            .ToList();
+
+        return Task.FromResult(chunks);
     }
 
     private static double CosineSimilarity(float[] a, float[] b)

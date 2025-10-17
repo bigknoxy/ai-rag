@@ -22,9 +22,9 @@ Local verification steps (detailed)
 2. Start the API for manual testing:
    - `dotnet run --project src/AiRag.Api`
 3. Healthcheck:
-   - `curl -s http://localhost:5000/api/health` should return `{ "status": "healthy" }`.
+   - `curl -s http://localhost:5250/api/health` should return `{ "status": "healthy" }`.
 4. Ingest:
-   - `curl -s -X POST http://localhost:5000/api/ingest -H "Content-Type: application/json" -d '{ "documents": [ { "id": "doc-1", "text": "Hello world", "metadata": {} } ] }'`
+   - `curl -s -X POST http://localhost:5250/api/ingest -H "Content-Type: application/json" -d '{ "documents": [ { "id": "doc-1", "text": "Hello world", "metadata": {} } ] }'`
    - Expect: JSON with `"ingested": 1` and `samples/vectors.json` updated.
 
 CI notes

@@ -1,10 +1,10 @@
-name: Format and Test
+name: Format, Test, and Build
 
 on:
   push:
-    branches: [ "main", "specs/002-complete" ]
+    branches: [ "main", "specs/002-complete", "phase-4-ui-tests-ci-docs" ]
   pull_request:
-    branches: [ "main", "specs/002-complete" ]
+    branches: [ "main", "specs/002-complete", "phase-4-ui-tests-ci-docs" ]
 
 jobs:
   build-test-format:
@@ -20,11 +20,19 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Restore dotnet tools
         run: dotnet tool restore
+      - name: Install Playwright browsers
+        run: dotnet tool run playwright install --with-deps
       - name: Verify code formatting
         run: dotnet format src/AiRag.sln --verify-no-changes
+      - name: Lint with dotnet-format
+        run: dotnet format src/AiRag.sln --check
       - name: Restore dependencies
         run: dotnet restore src/AiRag.sln
       - name: Build
         run: dotnet build src/AiRag.sln --no-restore --configuration Release
       - name: Test
         run: dotnet test src/AiRag.sln --no-build --configuration Release
+      - name: Build Docker Image
+        run: docker build -t ai-rag-api .
+      - name: Test Coverage
+        run: dotnet test src/AiRag.sln --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage

@@ -15,9 +15,9 @@ This quickstart shows how to run the AI-RAG demo locally (Live mode) and in CI (
 3. Run the API locally:
    - `dotnet run --project src/AiRag.Api`
 4. Ingest sample documents:
-   - `curl -X POST "http://localhost:5000/api/ingest" -F "file=@samples/sample1.md" -H "x-api-key: demo-key"`
+   - `curl -X POST "http://localhost:5250/api/ingest" -F "file=@samples/sample1.md" -H "x-api-key: demo-key"`
 5. Query the corpus:
-    - `curl -X POST "http://localhost:5000/api/query" -H "Content-Type: application/json" -H "x-api-key: demo-key" -d '{"text":"What is retrieval-augmented generation?","topK":3}'`
+    - `curl -X POST "http://localhost:5250/api/query" -H "Content-Type: application/json" -H "x-api-key: demo-key" -d '{"text":"What is retrieval-augmented generation?","topK":3}'`
     - Response includes `results` array and `assembled` passages for easy reading.
 
 ## CI / Tests (Precomputed Embeddings)

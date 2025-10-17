@@ -14,7 +14,8 @@
   <ItemGroup>
     <ProjectReference Include="../../src/AiRag.Api/AiRag.Api.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="../contract/*.cs" />
-  </ItemGroup>
+   <ItemGroup>
+     <Compile Include="../contract/*.cs" />
+     <Compile Include="../integration/*.cs" />
+   </ItemGroup>
 </Project>

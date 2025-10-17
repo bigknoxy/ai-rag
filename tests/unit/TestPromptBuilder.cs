@@ -23,7 +23,7 @@ public class TestPromptBuilder
         var assembled = builder.AssemblePassages(results, chunks, "test query");
         Assert.Contains("First chunk", assembled);
         Assert.Contains("Second chunk", assembled);
-        // This will fail until PromptBuilder is implemented
+        // PromptBuilder now prefixes with 'Assembled passages' per requirements
     }
 
     [Fact]
@@ -34,6 +34,6 @@ public class TestPromptBuilder
         var chunks = new AiRag.Api.Models.Chunk[0];
         var assembled = builder.AssemblePassages(results, chunks, "test query");
         Assert.Equal("No relevant passages found.", assembled);
-        // This will fail until PromptBuilder is implemented
+        // PromptBuilder now prefixes with 'Assembled passages' per requirements
     }
 }

@@ -73,3 +73,6 @@ local.settings.json
 
 # Keep editor config tracked
 !.editorconfig
+
+
+node_modules/

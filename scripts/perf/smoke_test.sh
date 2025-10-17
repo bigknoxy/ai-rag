@@ -5,7 +5,7 @@
 
 set -euo pipefail
 THRESHOLD=${1:-1.0}
-PORT=5000
+PORT=5250
 API_PID=""
 
 cleanup() {

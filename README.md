@@ -11,10 +11,12 @@ AI-RAG is a modular, open-source Retrieval-Augmented Generation (RAG) service bu
 - **Pluggable Architecture**: Modular adapters for embeddings, vector stores, and LLMs.
 - **Retrieval-Only Default**: Assembles answers from passages without LLM calls for lightweight operation.
 - **Optional Local LLM**: Integrate Ollama or llama.cpp for full RAG with streaming responses.
+- **Blazor Demo UI**: Simple web interface for ingestion, querying, and streaming.
 - **CI-Safe Testing**: All tests use mocks and precomputed artifacts; no network dependencies.
 - **Streaming Support**: Real-time token streaming for LLM responses.
 - **Configurable Modes**: Switch between Precomputed (CI), Live (dev), and LLM-enabled modes via config.
-- **Comprehensive Testing**: Unit, integration, and contract tests ensure reliability.
+- **Comprehensive Testing**: Unit, integration, contract, and E2E tests ensure reliability.
+- **Docker Support**: Easy deployment with multi-stage builds for API and embeddings service.
 
 ## 📋 Table of Contents
 
@@ -60,22 +62,40 @@ dotnet run --project src/AiRag.Api
 ### 4. Ingest and Query
 ```bash
 # Ingest sample document
-curl -X POST "http://localhost:5000/api/ingest" \
+curl -X POST "http://localhost:5250/api/ingest" \
   -F "file=@samples/sample1.md" \
   -H "x-api-key: demo-key"
 
 # Query in retrieval-only mode
-curl -X POST "http://localhost:5000/api/query" \
+curl -X POST "http://localhost:5250/api/query" \
   -H "Content-Type: application/json" \
   -d '{"text":"What is retrieval-augmented generation?","topK":3}'
 
 # Query with optional LLM (if enabled)
-curl -X POST "http://localhost:5000/api/query" \
+curl -X POST "http://localhost:5250/api/query" \
   -H "Content-Type: application/json" \
   -d '{"text":"Explain RAG","useLlm":true}'
 ```
 
 For detailed setup including LLM integration, see [specs/002-high-level-goal/quickstart.md](specs/002-high-level-goal/quickstart.md) or [specs/003-local-llm-integration/quickstart.md](specs/003-local-llm-integration/quickstart.md).
+
+### Docker Deployment
+Build and run with Docker Compose for easy local deployment:
+
+```bash
+# Build images
+docker build -t ai-rag-api .
+docker build -f embeddings/Dockerfile -t ai-rag-embeddings embeddings/
+
+# Run services
+docker run -d -p 8000:8000 --name ai-rag-api ai-rag-api
+docker run -d -p 8001:8001 --name ai-rag-embeddings ai-rag-embeddings
+
+# Or use docker-compose.yml (create if needed)
+docker-compose up
+```
+
+The API exposes port 8000, embeddings service port 8001. Health checks are included.
 
 ## 🏗️ Architecture
 
@@ -88,6 +108,20 @@ AI-RAG follows a modular adapter pattern for flexibility:
 - **Controllers**: REST endpoints for ingestion and querying.
 
 See [specs/002-high-level-goal/](specs/002-high-level-goal/) for architecture details and diagrams.
+
+### Architectural Decision Records (ADRs)
+Key decisions documented in [specs/004-phase-4/adrs/](specs/004-phase-4/adrs/):
+- [001-embeddings-model-choice.md](specs/004-phase-4/adrs/001-embeddings-model-choice.md): Choice of SentenceTransformers for local embeddings.
+- [002-vector-store-choice.md](specs/004-phase-4/adrs/002-vector-store-choice.md): InMemory and FAISS vector stores.
+- [003-local-first-rationale.md](specs/004-phase-4/adrs/003-local-first-rationale.md): Rationale for local-first design.
+
+### Demo UI
+A Blazor Server app is included for demonstration:
+- **Ingest Page**: Upload or paste text documents.
+- **Query Page**: Enter queries with options for LLM usage and streaming.
+- Run with: `dotnet run --project src/AiRag.Blazor`
+
+Access at `https://localhost:5001` (adjust for your setup).
 
 ## 📖 API Reference
 
