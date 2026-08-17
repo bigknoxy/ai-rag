@@ -16,7 +16,8 @@ public class TestDiConfig
             { "Embedding:Mode", "Precomputed" },
             { "Embedding:PrecomputedPath", System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "samples", "sample1.embeddings.json") }
         };
-        var config = new ConfigurationBuilder().AddInMemoryCollection(dict).Build();
+        var config = new Microsoft.Extensions.Configuration.ConfigurationManager();
+        foreach (var kv in dict) if (kv.Value != null) config[kv.Key] = kv.Value;
         var services = new ServiceCollection();
         services.AddAiRagPhase0(config);
         var sp = services.BuildServiceProvider();
@@ -33,7 +34,8 @@ public class TestDiConfig
             { "Embedding:Mode", "Live" },
             { "Embedding:LiveHost", "http://127.0.0.1:8001" }
         };
-        var config = new ConfigurationBuilder().AddInMemoryCollection(dict).Build();
+        var config = new Microsoft.Extensions.Configuration.ConfigurationManager();
+        foreach (var kv in dict) if (kv.Value != null) config[kv.Key] = kv.Value;
         var services = new ServiceCollection();
         services.AddAiRagPhase0(config);
         var sp = services.BuildServiceProvider();

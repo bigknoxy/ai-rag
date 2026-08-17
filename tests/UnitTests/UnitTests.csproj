@@ -18,7 +18,8 @@
      <ProjectReference Include="../../src/AiRag.Api/AiRag.Api.csproj" />
      <ProjectReference Include="../../src/AiRag.Blazor/AiRag.Blazor.csproj" />
    </ItemGroup>
-  <ItemGroup>
-    <Compile Include="../unit/*.cs" />
-  </ItemGroup>
+   <ItemGroup>
+     <Compile Include="../unit/*.cs" />
+     <Compile Include="../di/*.cs" />
+   </ItemGroup>
 </Project>

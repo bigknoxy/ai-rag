@@ -47,7 +47,7 @@ cd ai-rag
 dotnet restore
 
 # Python dependencies for embeddings
-pip install -r context/projects/ai-rag/embeddings/requirements.txt
+pip install -r embeddings/requirements.txt
 ```
 
 ### 3. Start Services

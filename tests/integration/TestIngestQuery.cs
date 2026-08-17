@@ -20,7 +20,7 @@ public class TestIngestQuery : IClassFixture<WebApplicationFactory<Program>>
     {
         var ingestJson = "{ \"documents\": [ { \"id\": \"doc-1\", \"text\": \"The quick brown fox\", \"metadata\": {} } ] }";
         var ingestContent = new StringContent(ingestJson, Encoding.UTF8, "application/json");
-        var ingestResp = await _client.PostAsync("/api/ingest", ingestContent);
+        var ingestResp = await _client.PostAsync("/api/ingest/json", ingestContent);
         Assert.Equal(System.Net.HttpStatusCode.Accepted, ingestResp.StatusCode);
 
         var queryJson = "{ \"text\": \"quick brown\", \"topK\": 1 }";
@@ -39,17 +39,17 @@ public class TestIngestQuery : IClassFixture<WebApplicationFactory<Program>>
     {
         var ingestJson = "{ \"documents\": [ { \"id\": \"doc-1\", \"text\": \"The quick brown fox\", \"metadata\": {} } ] }";
         var ingestContent = new StringContent(ingestJson, Encoding.UTF8, "application/json");
-        var ingestResp = await _client.PostAsync("/api/ingest", ingestContent);
+        var ingestResp = await _client.PostAsync("/api/ingest/json", ingestContent);
         Assert.Equal(System.Net.HttpStatusCode.Accepted, ingestResp.StatusCode);
 
-        var queryJson = "{ \"text\": \"quick brown\", \"topK\": 1 }";
+        var queryJson = "{ \"text\": \"quick brown\", \"topK\": 1, \"useLlm\": false }";
         var queryContent = new StringContent(queryJson, Encoding.UTF8, "application/json");
         var queryResp = await _client.PostAsync("/api/query", queryContent);
         Assert.Equal(System.Net.HttpStatusCode.OK, queryResp.StatusCode);
 
         var body = await queryResp.Content.ReadAsStringAsync();
-Assert.Contains("assembled", body, System.StringComparison.OrdinalIgnoreCase); // PromptBuilder should include 'assembled'
-         Assert.Contains("quick brown fox", body, System.StringComparison.OrdinalIgnoreCase); // Check that passage text appears
+        Assert.Contains("assembled", body, System.StringComparison.OrdinalIgnoreCase); // PromptBuilder should include 'assembled'
+        Assert.Contains("quick brown fox", body, System.StringComparison.OrdinalIgnoreCase); // Check that passage text appears
     }
 
     [Fact]

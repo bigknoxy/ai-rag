@@ -20,7 +20,7 @@ public class TestIngest : IClassFixture<WebApplicationFactory<Program>>
     {
         var json = "{ \"documents\": [ { \"id\": \"doc-1\", \"text\": \"Hello world\", \"metadata\": {} } ] }";
         var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var resp = await _client.PostAsync("/api/ingest", content);
+        var resp = await _client.PostAsync("/api/ingest/json", content);
         Assert.Equal(System.Net.HttpStatusCode.Accepted, resp.StatusCode);
         var body = await resp.Content.ReadAsStringAsync();
         Assert.Contains("ingested", body);

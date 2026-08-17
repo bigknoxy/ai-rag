@@ -34,7 +34,15 @@ public class TestFileVectorStore_GetChunks
             }
             finally
             {
-                Directory.SetCurrentDirectory(orig);
+                // Only restore if the original directory still exists (defensive in CI environments)
+                if (Directory.Exists(orig))
+                {
+                    Directory.SetCurrentDirectory(orig);
+                }
+                else
+                {
+                    Console.WriteLine($"[Test] Original directory '{orig}' no longer exists; skipping restore.");
+                }
             }
         }
         finally
