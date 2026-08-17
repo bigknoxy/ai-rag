@@ -8,19 +8,19 @@ public class ApiService
 {
     private readonly HttpClient _httpClient;
 
-        public ApiService(HttpClient httpClient)
-        {
-            _httpClient = httpClient;
+    public ApiService(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
 
-            // Resolve API base URL from environment (docker-compose sets `Api__BaseUrl`)
-            var envBase = Environment.GetEnvironmentVariable("Api__BaseUrl") ?? "http://localhost:8000";
-            if (!envBase.EndsWith("/")) envBase += "/";
+        // Resolve API base URL from environment (docker-compose sets `Api__BaseUrl`)
+        var envBase = Environment.GetEnvironmentVariable("Api__BaseUrl") ?? "http://localhost:8000";
+        if (!envBase.EndsWith("/")) envBase += "/";
 
-            // Ensure the client points to the API's /api/ path
-            var apiBase = new Uri(new Uri(envBase), "api/");
-            _httpClient.BaseAddress = apiBase;
-            Console.WriteLine($"[ApiService] BaseAddress set to: {_httpClient.BaseAddress}");
-        }
+        // Ensure the client points to the API's /api/ path
+        var apiBase = new Uri(new Uri(envBase), "api/");
+        _httpClient.BaseAddress = apiBase;
+        Console.WriteLine($"[ApiService] BaseAddress set to: {_httpClient.BaseAddress}");
+    }
 
     public async Task<IngestResponse> IngestAsync(IngestRequest request)
     {

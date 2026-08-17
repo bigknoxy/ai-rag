@@ -71,11 +71,12 @@ public class QueryController : ControllerBase
             response = _promptBuilder.AssemblePassages(results, chunks, req.Text);
         }
 
-        var outList = results.Select(r => {
-                var chunk = chunks.FirstOrDefault(c => c.Id == r.chunkId);
-                var documentId = chunk != null ? chunk.DocumentId : string.Empty;
-                return new { chunkId = r.chunkId, documentId, score = r.score, metadata = new { } };
-            }).ToList();
+        var outList = results.Select(r =>
+        {
+            var chunk = chunks.FirstOrDefault(c => c.Id == r.chunkId);
+            var documentId = chunk != null ? chunk.DocumentId : string.Empty;
+            return new { chunkId = r.chunkId, documentId, score = r.score, metadata = new { } };
+        }).ToList();
         return Ok(new { results = outList, response, llmUsed });
     }
 

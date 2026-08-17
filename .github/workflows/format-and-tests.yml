@@ -22,6 +22,51 @@ jobs:
         run: dotnet tool restore
       - name: Install Playwright browsers
         run: dotnet tool run playwright install --with-deps
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install embeddings service dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # sentence-transformers (requirements-ml.txt) is an optional heavy
+          # dependency not required by the deterministic service.
+          pip install -r embeddings/requirements-dev.txt
+
+      - name: Test embeddings service (unit)
+        run: python -m pytest embeddings/test_service.py -q
+
+      - name: Start embeddings service for integration tests
+        run: |
+          nohup python -m uvicorn embeddings.service:app --host 127.0.0.1 --port 8001 > embeddings-service.log 2>&1 &
+          for i in {1..30}; do
+            if curl -fsS "http://127.0.0.1:8001/health" >/dev/null 2>&1; then
+              echo "Embeddings service is up"; break
+            fi
+            echo "Waiting for embeddings service... ($i)"; sleep 1
+          done
+
+      - name: Test embeddings service (integration)
+        run: python -m pytest embeddings/tests/ -q
+
+      - name: Start UI and API for E2E tests
+        run: |
+          # Start the Blazor UI on 5250 and API on 5251 in the background
+          dotnet run --project src/AiRag.Blazor --urls "http://localhost:5250" &
+          dotnet run --project src/AiRag.Api --urls "http://localhost:5251" &
+
+          # Wait until both services respond on their health endpoints or timeout
+          for i in {1..60}; do
+            if curl -fsS "http://localhost:5250/health" >/dev/null 2>&1 && curl -fsS "http://localhost:5251/health" >/dev/null 2>&1; then
+              echo "UI and API are up"; break
+            fi
+            echo "Waiting for UI/API... ($i)"; sleep 1
+          done
+        env:
+          ASPNETCORE_ENVIRONMENT: CI
+
       - name: Verify code formatting
         run: dotnet format src/AiRag.sln --verify-no-changes
       - name: Lint with dotnet-format
@@ -31,8 +76,12 @@ jobs:
       - name: Build
         run: dotnet build src/AiRag.sln --no-restore --configuration Release
       - name: Test
+        env:
+          E2E_BASE_URL: http://localhost:5250
         run: dotnet test src/AiRag.sln --no-build --configuration Release
       - name: Build Docker Image
         run: docker build -t ai-rag-api .
       - name: Test Coverage
+        env:
+          E2E_BASE_URL: http://localhost:5250
         run: dotnet test src/AiRag.sln --no-build --configuration Release --collect:"XPlat Code Coverage" --results-directory ./coverage
