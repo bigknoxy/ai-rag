@@ -20,8 +20,11 @@ jobs:
           dotnet-version: '8.0.x'
       - name: Restore dotnet tools
         run: dotnet tool restore
-      - name: Install Playwright browsers
-        run: dotnet tool run playwright install --with-deps
+      # The dotnet Playwright CLI cannot locate the project on this runner; the
+      # JS CLI of the same version installs browsers to the shared cache path
+      # (.NET Playwright 1.40.0 resolves them from the same location).
+      - name: Install Playwright browsers (v1.40 to match Microsoft.Playwright)
+        run: npx -y playwright@1.40.0 install --with-deps chromium
 
       - name: Set up Python
         uses: actions/setup-python@v5
