@@ -73,3 +73,8 @@ local.settings.json
 
 # Keep editor config tracked
 !.editorconfig
+
+
+node_modules/
+# Local agent-context symlink (machine-specific, breaks CI traversal)
+context

@@ -11,6 +11,8 @@ builder.Services.AddAiRagPhase0(builder.Configuration);
 
 var app = builder.Build();
 
+// No global service locator needed now; DI provides optional live provider to PrecomputedEmbeddingProvider
+
 // Startup validations: fail-fast in CI if embedding mode is not Precomputed
 var env = app.Environment.EnvironmentName ?? "";
 var embeddingOptions = app.Services.GetService<Microsoft.Extensions.Options.IOptions<AiRag.Api.Models.EmbeddingOptions>>()?.Value ?? new AiRag.Api.Models.EmbeddingOptions();
@@ -50,6 +52,8 @@ app.UseMiddleware<AiRag.Api.Services.RequestLoggingMiddleware>();
 app.MapControllers();
 
 app.MapGet("/", () => Results.Ok(new { status = "ok" }));
+
+app.MapGet("/health", () => Results.Ok(new { status = "healthy" }));
 
 app.Run();
 

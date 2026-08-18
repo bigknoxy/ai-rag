@@ -10,15 +10,29 @@ public static class ServiceCollectionExtensions
         var config = cfg ?? new Microsoft.Extensions.Configuration.ConfigurationBuilder().AddEnvironmentVariables().Build();
         services.Configure<AiRag.Api.Models.EmbeddingOptions>(config.GetSection("Embedding"));
         services.Configure<AiRag.Api.Models.LLMOptions>(config.GetSection("LLM"));
+        // Make IConfiguration available to services
+        services.AddSingleton<Microsoft.Extensions.Configuration.IConfiguration>(config);
         var mode = config["Embedding:Mode"] ?? "Precomputed";
+
+        // Always register the concrete LiveEmbeddingProvider so Precomputed provider can optionally call it as a fallback
+        services.AddSingleton<LiveEmbeddingProvider>();
 
         if (string.Equals(mode, "Live", System.StringComparison.OrdinalIgnoreCase))
         {
-            services.AddSingleton<AiRag.Api.Adapters.IEmbeddingProvider, LiveEmbeddingProvider>();
+            services.AddSingleton<AiRag.Api.Adapters.IEmbeddingProvider>(sp => sp.GetRequiredService<LiveEmbeddingProvider>());
         }
         else
         {
-            services.AddSingleton<AiRag.Api.Adapters.IEmbeddingProvider, PrecomputedEmbeddingProvider>();
+            // When using Precomputed provider, if a LiveEmbeddingProvider is registered we pass it as an optional fallback
+            services.AddSingleton<AiRag.Api.Adapters.IEmbeddingProvider>(sp =>
+            {
+                var cfg = sp.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>();
+                var opts = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<AiRag.Api.Models.EmbeddingOptions>>();
+                var live = sp.GetService<LiveEmbeddingProvider>();
+                // Logging is optional here so callers can use minimal DI containers (e.g. unit tests).
+                var logger = sp.GetService<Microsoft.Extensions.Logging.ILogger<PrecomputedEmbeddingProvider>>();
+                return new PrecomputedEmbeddingProvider(cfg, opts, live, logger);
+            });
         }
 
         // Register LLM adapter based on config
@@ -39,6 +53,7 @@ public static class ServiceCollectionExtensions
         // For now register in-memory vector store; file store kept as fallback
         services.AddSingleton<AiRag.Api.Adapters.IVectorStore, AiRag.Api.Services.InMemoryVectorStore>();
         services.AddSingleton<PromptBuilder>();
+        services.AddSingleton<DocumentProcessor>();
         return services;
     }
 }

@@ -1,0 +1,102 @@
+@page "/ingest"
+ @using AiRag.Blazor.Models
+ @using AiRag.Blazor.Services
+ @inject ApiService ApiService
+ @using Microsoft.AspNetCore.Components.Forms
+
+<PageTitle>Ingest Documents</PageTitle>
+
+<h1>Ingest Documents</h1>
+
+<p>Upload or paste text to add to the knowledge base.</p>
+
+ <EditForm Model="ingestRequest" OnValidSubmit="HandleIngest" FormName="ingestForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label for="documentText">Document Text:</label>
+          <textarea id="documentText" class="form-control" rows="10" @bind-value="ingestRequest.Documents[0].Text" @bind-value:event="oninput" placeholder="Paste your document text here..."></textarea>
+    </div>
+
+      <button type="submit" class="btn btn-primary" disabled="@isLoading">Ingest</button>
+ </EditForm>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-info mt-3">@message</div>
+}
+
+<style>
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    .form-control {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+    }
+    .btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+    .btn:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
+    .alert {
+        padding: 0.75rem;
+        border-radius: 0.25rem;
+    }
+    .alert-info {
+        background-color: #d1ecf1;
+        border: 1px solid #bee5eb;
+        color: #0c5460;
+    }
+</style>
+
+@code {
+    private IngestRequest ingestRequest = new IngestRequest
+    {
+        Documents = { new Document() }
+    };
+    private bool isLoading;
+    private string message = string.Empty;
+
+    private async Task HandleIngest()
+    {
+        var currentText = ingestRequest.Documents.First().Text;
+        Console.WriteLine($"[Ingest.razor] ingestRequest.Documents[0].Text before submit: '{currentText}'");
+
+        if (string.IsNullOrWhiteSpace(currentText))
+        {
+            message = "Please enter document text.";
+            return;
+        }
+
+        isLoading = true;
+        message = string.Empty;
+
+        try
+        {
+            var response = await ApiService.IngestAsync(ingestRequest);
+            message = $"Successfully ingested {response.Ingested} document(s).";
+            // Clear the input after successful ingest
+            ingestRequest.Documents[0].Text = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            message = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

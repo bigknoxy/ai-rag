@@ -1,18 +1,39 @@
+"""Live-service integration test for the embeddings API.
+
+Skipped automatically when the service is not running on 127.0.0.1:8001.
+For offline unit coverage see embeddings/test_service.py.
+"""
+import os
+
 import requests
 
+import pytest
 
-def test_embed_returns_vector_length_384():
-    # Phase 0: call local service if available; otherwise assert sample embedding exists
+SERVICE_URL = os.environ.get("EMBEDDINGS_SERVICE_URL", "http://127.0.0.1:8001")
+
+
+def _service_up() -> bool:
     try:
-        resp = requests.post("http://127.0.0.1:8001/embed", json={"text": "Hello world"}, timeout=1)
-        assert resp.status_code == 200
-        vec = resp.json()
-        assert isinstance(vec, list)
-        assert len(vec) == 384
+        requests.get(f"{SERVICE_URL}/health", timeout=1)
+        return True
     except Exception:
-        # Fallback: use samples/sample1.embeddings.json
-        import json
-        with open("samples/sample1.embeddings.json") as f:
-            data = json.load(f)
-        # sample contains tiny vector, this test will fail until proper embedding is provided
-        assert False, "Embeddings service not available and no valid sample provided"
+        return False
+
+
+live = pytest.mark.skipif(not _service_up(), reason="embedding service not running on 127.0.0.1:8001")
+
+
+@live
+def test_embed_returns_vector_length_384():
+    resp = requests.post(f"{SERVICE_URL}/embed", json={"text": "Hello world"}, timeout=5)
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["dimension"] == 384
+    assert len(body["embedding"]) == 384
+
+
+@live
+def test_embed_is_deterministic():
+    a = requests.post(f"{SERVICE_URL}/embed", json={"text": "stability check"}, timeout=5).json()
+    b = requests.post(f"{SERVICE_URL}/embed", json={"text": "stability check"}, timeout=5).json()
+    assert a["embedding"] == b["embedding"]

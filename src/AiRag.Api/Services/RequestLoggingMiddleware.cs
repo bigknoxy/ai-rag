@@ -24,19 +24,28 @@ public class RequestLoggingMiddleware
 
         // Capture request body if present (non-invasive, only for small bodies)
         string? requestBody = null;
-        if (request.ContentLength > 0 && request.ContentLength < 4096 && request.Body.CanSeek)
+        try
         {
-            try
+            // Ensure the request body can be read multiple times
+            context.Request.EnableBuffering();
+
+            if (request.ContentLength > 0 && request.ContentLength < 4096)
             {
                 request.Body.Position = 0;
                 using var reader = new StreamReader(request.Body, Encoding.UTF8, leaveOpen: true);
                 requestBody = await reader.ReadToEndAsync();
                 request.Body.Position = 0;
+
+                // Dev-only: log the request body at Debug level so production logs remain clean
+                if (!string.IsNullOrWhiteSpace(requestBody) && _logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug("Request body: {body}", requestBody);
+                }
             }
-            catch
-            {
-                // ignore reading errors
-            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Failed to read request body for logging.");
         }
 
         await _next(context);

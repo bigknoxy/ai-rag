@@ -8,9 +8,21 @@ public class PrecomputedEmbeddingProvider : IEmbeddingProvider
 {
     private readonly Dictionary<string, float[]> _map = new();
     private readonly int _dimension;
+    private readonly EmbeddingOptions _options;
+    private readonly IEmbeddingProvider? _liveProvider;
+    private readonly Microsoft.Extensions.Logging.ILogger<PrecomputedEmbeddingProvider> _logger;
+    private long _fallbackCount = 0;
 
-    public PrecomputedEmbeddingProvider(Microsoft.Extensions.Configuration.IConfiguration cfg)
+    public PrecomputedEmbeddingProvider(
+        Microsoft.Extensions.Configuration.IConfiguration cfg,
+        Microsoft.Extensions.Options.IOptions<EmbeddingOptions> opts,
+        IEmbeddingProvider? liveProvider = null,
+        Microsoft.Extensions.Logging.ILogger<PrecomputedEmbeddingProvider>? logger = null)
     {
+        _options = opts.Value;
+        _liveProvider = liveProvider;
+        _logger = logger ?? Microsoft.Extensions.Logging.Abstractions.NullLogger<PrecomputedEmbeddingProvider>.Instance;
+
         var configured = cfg["Embedding:PrecomputedPath"];
         var defaultCandidate = Path.Combine(Directory.GetCurrentDirectory(), "samples", "sample1.embeddings.json");
         var candidates = new List<string>();
@@ -33,7 +45,7 @@ public class PrecomputedEmbeddingProvider : IEmbeddingProvider
         // pick first existing
         var path = candidates.FirstOrDefault(File.Exists);
 
-        var configuredDim = int.TryParse(cfg["Embedding:Dimension"], out var d) ? d : -1;
+        var configuredDim = _options.Dimension > 0 ? _options.Dimension : (int.TryParse(cfg["Embedding:Dimension"], out var d) ? d : -1);
 
         if (path == null)
             throw new FileNotFoundException($"Precomputed embeddings not found. Tried: {string.Join(';', candidates.Distinct())}");
@@ -64,14 +76,67 @@ public class PrecomputedEmbeddingProvider : IEmbeddingProvider
         }
     }
 
-    public Task<float[]> GetEmbeddingAsync(string text)
+    public async Task<float[]> GetEmbeddingAsync(string text)
     {
-        // Deterministic mapping: if text contains known id return that vector, else return zero vector
+        // Normalize null inputs to empty string to avoid nullability warnings
+        if (text == null) text = string.Empty;
+
+        // If precomputed key contained in text, return it
         foreach (var k in _map.Keys)
         {
-            if (text != null && text.Contains(k, System.StringComparison.OrdinalIgnoreCase))
-                return Task.FromResult(_map[k]);
+            if (text.Contains(k, System.StringComparison.OrdinalIgnoreCase))
+                return _map[k];
         }
-        return Task.FromResult(Enumerable.Repeat(0.0f, _dimension).ToArray());
+
+        // Missing precomputed embedding — decide fallback
+        var mode = (_options.FallbackMode ?? "Deterministic").Trim();
+        if (string.Equals(mode, "Strict", System.StringComparison.OrdinalIgnoreCase))
+        {
+            throw new PrecomputedEmbeddingMissingException("Precomputed embedding missing for input (strict mode)");
+        }
+
+        // Option: call service when enabled
+        if (string.Equals(mode, "CallService", System.StringComparison.OrdinalIgnoreCase))
+        {
+            try
+            {
+                // resolve live provider from DI
+                var live = _liveProvider;
+                if (live != null)
+                {
+                    var cts = new System.Threading.CancellationTokenSource(TimeSpan.FromSeconds(3));
+                    var emb = await live.GetEmbeddingAsync(text).WaitAsync(cts.Token);
+                    if (emb != null && emb.Length == _dimension && !IsAllZero(emb))
+                    {
+                        return emb;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning("Live provider fallback failed, using deterministic embedding: {Message}", ex.Message);
+            }
+        }
+
+        // Deterministic fallback
+        var dimension = _options.Deterministic?.Dimension > 0 ? _options.Deterministic.Dimension : _dimension;
+        var salt = _options.Deterministic?.Salt ?? string.Empty;
+        var det = GenerateDeterministicEmbedding(text, dimension, salt);
+        var count = System.Threading.Interlocked.Increment(ref _fallbackCount);
+        _logger.LogInformation("Precomputed embedding missing; deterministic fallback used. count={Count}", count);
+        return det;
     }
+
+    private static bool IsAllZero(float[] v)
+    {
+        if (v == null) return true;
+        double sum = 0.0;
+        foreach (var x in v) sum += x * x;
+        return sum < 1e-12;
+    }
+
+    // Kept (private, static) for backward compatibility with reflection-based tests.
+    private static float[] GenerateDeterministicEmbedding(string input, int dimension, string salt)
+        => DeterministicEmbedding.Generate(input, dimension, salt);
 }
+
