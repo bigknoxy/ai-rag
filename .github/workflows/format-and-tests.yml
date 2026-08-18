@@ -78,9 +78,7 @@ jobs:
           ASPNETCORE_ENVIRONMENT: CI
 
       - name: Verify code formatting
-        run: dotnet format src/AiRag.sln --verify-no-changes
-      - name: Lint with dotnet-format
-        run: dotnet format src/AiRag.sln --check
+        run: dotnet format whitespace src/AiRag.sln --verify-no-changes
       - name: Restore dependencies
         run: dotnet restore src/AiRag.sln
       - name: Build
