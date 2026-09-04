@@ -18,4 +18,5 @@ jobs:
     with:
       language: dotnet
       has_docker: false
+      working_directory: src
     secrets: inherit
